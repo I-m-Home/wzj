@@ -1,0 +1,157 @@
+今天是最后一天JS，明天晚上考试
+服务器端（MySQL+PHP）+ ajax + jQuery + Bootstrap + Node.js
+
+1、BOM：常用对象：history location *navigator
+   history：保存当前窗口打开过的历史记录的栈结构
+	操作：前进：history.go(1);
+	      后退：history.go(-1);
+	      刷新：history.go(0);
+
+   location：封装当前窗口正在打开url的对象
+	属性：这些都是常识！！！一个URL由哪些部分组成？
+	  协议名：protocol
+	  域名/主机号：hostname
+	  端口号：域名后的:紧跟着端口号：port
+	  文件的相对路径名：从端口号后的/到?之前：pathname
+	  查询字符串：?后的内容：search
+	
+	扩展：http: 默认端口号： 80
+	      https: 默认端口号： 443
+	
+	方法：
+	 *跳转：location="url";
+		location.href="url";
+		location.assign("url");
+
+	  跳转禁止后退：location.replace("url");
+
+	  刷新：location.reload();
+
+   *navigator：封装了浏览器配置信息的对象
+	cookieEnabled：识别浏览器是否启用了cookie
+		如果启用，返回true，否则返回false
+	
+	*userAgent：描述浏览器名称和版本号的字符串：专门对不同的浏览器执行不同的js
+        类似于：CSS HACK：专门为IE做不一样的CSS
+
+2、*****event对象
+   事件：用户手动触发的，或浏览器自动触发的状态的改变
+   事件对象：在事件发生时，自动创建的，专门封装事件信息的对象。
+   事件处理函数：在事件发生时，自动调用的函数
+
+   绑定事件：3种
+	1、在HTML中定义事件处理函数的内容
+	   <any on事件名="js语句"></any>
+	   比如：<button onclick="console.log(1)">点击</button>
+
+	   缺点：
+	     1、不符合内容和行为的分离
+	     2、无法动态绑定事件
+	     3、无法同时绑定多个函数对象
+
+	2、*在JS中使用元素的事件处理函数属性
+	   elem.on事件名=function(){}
+	   优点：1、符合内容和行为的分离
+	         2、可以动态绑定事件
+	   缺点：1、无法同时绑定多个函数对象
+
+	3、使用专门的API绑定事件处理函数
+	   主流：elem.addEventListener("事件名//不要加on",函数对象//不要加小括号);
+	   优点：1、符合内容和行为的分离
+	         2、可以动态绑定事件
+		 3、同时绑定多个函数对象
+	
+	   老IE：elem.attachEvent("事件名",函数对象);
+
+	   兼容：if(h1.addEventListener){
+			h1.addEventListener("click",f1);
+		 }else{
+			h1.attachEvent("onclick",f1);
+		 }
+
+
+	*事件周期：从事件发生，到所有事件处理函数执行完毕的全过程
+	 主流：3个阶段
+	       1、捕获阶段，由外向内
+		      捕获，记录所有要执行的事件处理函数
+	       2、目标触发
+		      目标元素，实际发生事件的元素
+	       3、冒泡阶段，由内向外执行
+
+	老IE：2个阶段：没有捕获阶段
+
+	事件触发顺序可以改变：只有主流浏览器可以改变
+	  如何改变触发顺序：
+	    设置事件在捕获阶段就提前触发
+	    elem.addEventListener("事件名//不要加on",函数对象//不要加小括号,true);
+	 
+	没什么卵用，因为第三个参数只有主流浏览器的addEventListener可用
+
+	***事件对象：
+	   主流：event会自动作为事件处理函数的*第一个形参*传入
+		 elem.onXXX=function(e){
+			e->event
+		 }
+	   老IE：window中有一个属性event
+		 elem.onXXX=function(e){
+		 	e=window.event;
+		 }
+	   兼容：elem.onXXX=function(e){
+		 	e=window.event||e;
+		 }
+
+	1、*取消冒泡：本次事件处理函数执行结束后，阻止冒泡继续触发
+	   主流：e.stopPropagation();
+	   老IE：e.cancelBubble==true;
+	   兼容：if(e.stopPropagation){
+			e.stopPropagation()
+		 }else{
+			e.cancelBubble=true;
+		 }
+	  
+	2、*利用冒泡/事件委托
+	   优化：***如果多个子元素定义了相同的事件处理函数，最好只给父元素定义一次
+	   为什么：每次绑定一个事件处理函数，其实都是创建了一个事件监听对象，创建监听		   对象越多，网页效率就越低下
+
+	   获取目标元素
+	   主流：e.target;
+	   老IE：e.srcElement;
+	   兼容：var target=e.target||e.srcElement;
+
+	   好处：1、事件只需要给父元素绑定一次
+		 2、不用担心冒泡了
+	   强调：只要跟DOM元素/网页特效相关了，都不用this，必须去找target
+
+	3、*阻止元素默认行为：比如a标签、submit按钮
+	   主流：e.preventDefault();
+	   老IE：e.returnValue=false;
+	   兼容：if(e.preventDefault){
+			e.preventDefault();
+		 }else{
+			e.returnValue=false;
+		 }
+
+	4、移除事件绑定
+	   elem.removeEventListener("事件名",函数对象);
+	   强调：remove时要求，函数对象必须和add时使用的函数对象完全一样
+	   只要一个事件处理函数可能被移除，就必须使用第3种方式
+	   如果一个事件没有可能被移除，就使用第2种方式
+			
+3、cookie：客户端存储技术：都会有一个生命周期（周期一过就会死亡）。最多30天就会挂
+	   浏览器保存下一个cookie：都是一个键值对
+		默认生命周期只要一旦关闭，就会死亡。
+		必须设置一个存活的时间
+		保存：document.cookie="name=dy&age=25&salary=20000";
+		保存并且设置生命周期：
+		      document.cookie="name=dy&age=25;expires="+日期对象.
+		读取：document.cookie
+	   cookie必须是一个服务器上网页运行才能保存
+
+		
+	作业：
+	  1、利用冒泡实现一个计算器，事件只绑一个
+	  2、利用冒泡/取消冒泡实现侧边栏导航：
+	     要求：点击可以打开可以关闭，点击二级链接的时候，不会关闭
+	  3、利用冒泡艾米雪设计团队
+
+	
